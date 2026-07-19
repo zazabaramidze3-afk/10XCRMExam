@@ -36,3 +36,13 @@ const AuthGuard = {
 
 // უშუალოდ ვუშვებთ შემოწმებას ყოველი გვერდის ჩატვირთვის საწყის ეტაპზე
 AuthGuard.check();
+
+// გლობალური ივენთი Logout ღილაკისთვის (მუშაობს პირდაპირ defer-ის წყალობით)
+const logoutBtn = document.getElementById("btn-logout");
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+        AuthGuard.logout();
+    });
+}
+
+
