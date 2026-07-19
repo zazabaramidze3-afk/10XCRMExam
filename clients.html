@@ -1,20 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clients Page - 10X CRM</title>
-    
+
     <!-- სტილების ფაილის დაკავშირება -->
     <link rel="stylesheet" href="css/style.css">
-    
+
     <!-- JavaScript ფაილების დაკავშირება defer ატრიბუტით -->
     <!-- მნიშვნელოვანია: ჯერ ვრთავთ საერთო ფუნქციებს, მერე კონკრეტული გვერდის ლოგიკას -->
     <script src="js/storage.js" defer></script>
     <script src="js/guard.js" defer></script>
     <script src="js/clients.js" defer></script>
 </head>
+
 <body>
-    <!-- აქ იქნება შენი code -->
+    <!-- მთავარი კონტეინერი -->
+    <div class="app-container">
+
+        <!-- 1. ნავიგაციის ზოლი (Header) -->
+        <header class="main-header">
+            <div class="logo">10X CRM</div>
+            <nav class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="clients.html" class="active">Clients</a>
+                <a href="profile.html">Profile</a>
+                <!-- Logout ღილაკი AuthGuard-ის ფუნქციით -->
+                <button id="btn-logout" class="btn-logout" onclick="AuthGuard.logout()">Log Out</button>
+            </nav>
+        </header>
+
+        <!-- მთავარი კონტენტი -->
+        <main class="main-content">
+            <div class="page-title-bar">
+                <h2>Clients Management</h2>
+                <!-- კლიენტის დამატების ღილაკი (მოგვიანებით გახსნის მოდალს) -->
+                <button id="btn-add-client" class="btn-primary">Add Client</button>
+            </div>
+
+            <!-- 2. ძებნის და ფილტრაციის ზოლი (Toolbar) -->
+            <div class="toolbar">
+                <input type="text" id="search-input" placeholder="Search clients by name or company...">
+
+                <select id="status-filter">
+                    <option value="all">All Statuses</option>
+                    <option value="Lead">Lead</option>
+                    <option value="Contacted">Contacted</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Won">Won</option>
+                    <option value="Lost">Lost</option>
+                </select>
+
+                <select id="sort-by">
+                    <option value="name-asc">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="value-high">Value (High to Low)</option>
+                    <option value="value-low">Value (Low to High)</option>
+                </select>
+            </div>
+
+            <!-- 3. კლიენტების დინამიური კონტეინერი -->
+            <!-- სწორედ აქ ჩაჯდება JS-ით API-დან წამოღებული კლიენტების ბარათები -->
+            <div id="clients-container" class="clients-grid">
+                <div class="loading-state">Loading clients...</div>
+            </div>
+        </main>
+    </div>
+
 </body>
+
 </html>
