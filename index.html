@@ -1,20 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main Page - 10X CRM</title>
-    
+
     <!-- სტილების ფაილის დაკავშირება -->
     <link rel="stylesheet" href="css/style.css">
-    
+
     <!-- JavaScript ფაილების დაკავშირება defer ატრიბუტით -->
     <!-- მნიშვნელოვანია: ჯერ ვრთავთ საერთო ფუნქციებს, მერე კონკრეტული გვერდის ლოგიკას -->
     <script src="js/storage.js" defer></script>
     <script src="js/guard.js" defer></script>
     <script src="js/auth.js" defer></script>
 </head>
+
 <body>
-    <!-- აქ იქნება შენი code -->
+    <div class="auth-container">
+        <h2>Login to 10X CRM</h2>
+
+        <!-- გლობალური შეტყობინებების (Toast) კონტეინერი -->
+        <div id="auth-toast" class="toast hidden"></div>
+
+        <form id="login-form" novalidate>
+
+            <!-- 1. Email Address -->
+            <div class="form-group">
+                <label for="login-email">Email Address</label>
+                <input type="email" id="login-email" placeholder="john@example.com">
+                <span class="error-msg" id="err-login-email"></span>
+            </div>
+
+            <!-- 2. Password -->
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="••••••••">
+                <span class="error-msg" id="err-login-password"></span>
+            </div>
+
+            <!-- ლოგინის ღილაკი -->
+            <button type="submit" id="btn-login">Log In</button>
+        </form>
+
+        <p class="auth-switch">Don't have an account? <a href="signup.html">Sign Up</a></p>
+    </div>
+
 </body>
+
 </html>
