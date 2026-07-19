@@ -1,12 +1,19 @@
 // 1. ველოდებით გვერდის სრულად ჩატვირთვას
 document.addEventListener("DOMContentLoaded", () => {
     const signupForm = document.getElementById("signup-form");
+    const loginForm = document.getElementById("login-form");
 
-    // თუ ამ კონკრეტულ გვერდზე არის რეგისტრაციის ფორმა, ჩავრთოთ ივენთი
+    // თუ რეგისტრაციის გვერდზე ვართ
     if (signupForm) {
         signupForm.addEventListener("submit", handleSignup);
     }
+    
+    // თუ ლოგინის გვერდზე ვართ
+    if (loginForm) {
+        loginForm.addEventListener("submit", handleLogin);
+    }
 });
+
 
 // 2. რეგისტრაციის მთავარი ფუნქცია
 function handleSignup(e) {
@@ -118,4 +125,63 @@ function showToast(message, type) {
         // 3 წამში ისევ მალავს
         setTimeout(() => toast.className = "toast hidden", 3000);
     }
+}
+
+
+// 6. სისტემაში შესვლის (Login) მთავარი ფუნქცია
+function handleLogin(e) {
+    e.preventDefault(); // ვაჩერებთ გვერდის გადატვირთვას
+
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+
+    // ვასუფთავებთ ძველ შეცდომებს
+    clearErrors();
+
+    let isValid = true;
+
+    // ბაზისური შემოწმება: ცარიელი ხომ არ არის ველები?
+    if (!email) {
+        showError("err-login-email", "Email address is required.");
+        isValid = false;
+    }
+    if (!password) {
+        showError("err-login-password", "Password is required.");
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
+    // StorageManager-იდან ამოგვაქვს დარეგისტრირებული იუზერების მასივი
+    const users = StorageManager.get("crm_users") || [];
+    
+    // ვეძებთ იუზერს, რომლის იმეილი და პაროლი ემთხვევა შეყვანილს
+    const user = users.find(u => u.email === email && u.password === password);
+
+    // თუ იუზერი ვერ მოიძებნა
+    if (!user) {
+        // PRD-ის მოთხოვნა: უსაფრთხოებისთვის ვაჩვენებთ მხოლოდ ზოგად შეცდომას (Toast)
+        showToast("Invalid email or password.", "error");
+        return;
+    }
+
+    // თუ იუზერი მოიძებნა, ვქმნით მიმდინარე სესიის ობიექტს (პაროლის გარეშე)
+    const sessionData = {
+        userId: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        company: user.company,
+        loginTime: Date.now()
+    };
+
+    // ვინახავთ სესიას ბაზაში გასაღებით "crm_session"
+    StorageManager.set("crm_session", sessionData);
+
+    // წარმატების შეტყობინება
+    showToast("Login successful! Redirecting to dashboard...", "success");
+    
+    // 1.2 წამში გადაგვყავს მომხმარებელი დეშბორდზე
+    setTimeout(() => {
+        window.location.href = "dashboard.html";
+    }, 1200);
 }
