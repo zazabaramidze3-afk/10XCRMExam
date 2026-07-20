@@ -88,10 +88,12 @@ async function fetchClientsFromAPI() {
     }
 }
 
-// 4. დროებითი ფუნქცია-ზაგლუშკა (სანამ ლამაზ ბარათებს ავაწყობთ) მხოლოდ შესამოწმებლად
+// 4. სრულფასოვანი და უსაფრთხო DOM რენდერი (3.2 ფიჩერი)
 function renderClients(clientsList) {
     if (!clientsContainer) return;
-    clientsContainer.innerHTML = ""; // მხოლოდ ვასუფთავებთ კონტეინერს ხელით
+    
+    // კონტეინერის სრული გასუფთავება ძველი ტექსტებისგან
+    clientsContainer.innerHTML = ""; 
 
     clientsList.forEach(client => {
         // ვქმნით ბარათის მთავარ კონტეინერს
@@ -99,20 +101,59 @@ function renderClients(clientsList) {
         card.className = "client-card";
         card.id = client.id;
 
-        // ვქმნით სახელს (უსაფრთხო ტექსტი)
-        const nameNode = document.createElement("h3");
-        nameNode.textContent = client.fullName; // XSS-სგან დაცული
+        // ა) ჰედერი: ავატარი და სტატუსის ბეიჯი
+        const headerNode = document.createElement("div");
+        headerNode.className = "card-header";
 
-        // ვქმნით იმეილს
+        const avatarNode = document.createElement("img");
+        avatarNode.className = "client-avatar";
+        avatarNode.src = client.avatar; // სურათის ლინკი ბაზიდან
+        avatarNode.alt = client.fullName;
+        avatarNode.style.width = "50px"; // დროებითი ზომა, სანამ CSS-ს დავწერთ
+        avatarNode.style.borderRadius = "50%";
+
+        const statusNode = document.createElement("span");
+        statusNode.className = `status-badge ${client.status.toLowerCase().replace(" ", "-")}`;
+        statusNode.textContent = ` [${client.status}]`;
+
+        headerNode.appendChild(avatarNode);
+        headerNode.appendChild(statusNode);
+
+        // ბ) ბოდი: სახელი, კომპანია და იმეილი
+        const bodyNode = document.createElement("div");
+        bodyNode.className = "card-body";
+
+        const nameNode = document.createElement("h3");
+        nameNode.textContent = client.fullName; // XSS დაცვა
+
+        const companyNode = document.createElement("p");
+        companyNode.className = "company";
+        companyNode.textContent = `Company: ${client.company}`; // კომპანიის სახელი
+
         const emailNode = document.createElement("p");
         emailNode.className = "email";
-        emailNode.textContent = client.email;
+        emailNode.textContent = `Email: ${client.email}`;
 
-        // ვამატებთ ელემენტებს ბარათში
-        card.appendChild(nameNode);
-        card.appendChild(emailNode);
+        bodyNode.appendChild(nameNode);
+        bodyNode.appendChild(companyNode);
+        bodyNode.appendChild(emailNode);
 
-        // ბარათს ვამატებთ მთავარ კონტეინერში
+        // გ) ფუტერი: გარიგების თანხა
+        const footerNode = document.createElement("div");
+        footerNode.className = "card-footer";
+        
+        const valueNode = document.createElement("span");
+        valueNode.className = "deal-value";
+        valueNode.textContent = ` Value: $${client.dealValue.toLocaleString()}`;
+        
+        footerNode.appendChild(valueNode);
+
+        // ვაერთიანებთ ყველაფერს მთავარ ბარათში
+        card.appendChild(headerNode);
+        card.appendChild(bodyNode);
+        card.appendChild(footerNode);
+
+        // ბარათს ვსვამთ HTML კონტეინერში
         clientsContainer.appendChild(card);
     });
 }
