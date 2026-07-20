@@ -1,26 +1,36 @@
-// 1. ვპოულობთ კონტეინერს HTML-ში, სადაც კლიენტები უნდა ჩავსვათ
-const clientsContainer = document.getElementById("clients-container");
+// ==========================================================================
+// 1. კონფიგურაცია და გლობალური ცვლადები
+// ==========================================================================
+const ALLOWED_STATUSES = ["Lead", "Contacted", "Won", "Lost"];
 
-// 2. გვერდის ინიციალიზაციის მთავარი ფუნქცია
+const clientsContainer = document.getElementById("clients-container");
+const addClientModal = document.getElementById('add-client-modal');
+const openModalBtn = document.getElementById('btn-add-client');
+const closeModalBtn = document.getElementById('btn-close-modal');
+const addClientForm = document.getElementById('add-client-form');
+
+// ==========================================================================
+// 2. გვერდის ინიციალიზაცია და API FETCH (ეტაპი 3.1)
+// ==========================================================================
+
+// გვერდის ჩატვირთვის მთავარი ფუნქცია
 async function initClientsPage() {
-    // შემოწმება: ხომ არ გვაქვს უკვე შენახული კლიენტები ლოკალურად?
     let clients = StorageManager.get("crm_clients");
 
-    // თუ ბაზა ცარიელია (პირველი ჩატვირთვაა), მივმართავთ API-ს
+    // თუ ლოკალური ბაზა ცარიელია, მივმართავთ API-ს
     if (!clients) {
         clients = await fetchClientsFromAPI();
     }
 
-    // თუ მონაცემები წარმატებით გვაქვს, გამოვიძახოთ რენდერის ფუნქცია
+    // თუ მონაცემები გვაქვს, გადავცემთ რენდერის ფუნქციას
     if (clients) {
         renderClients(clients);
     }
 }
 
-// 3. ასინქრონული ფუნქცია API-დან მონაცემების წამოსაღებად
+// ასინქრონული ფუნქცია API-დან 30 იუზერის წამოსაღებად
 async function fetchClientsFromAPI() {
     try {
-        // ვითხოვთ 30 იუზერს dummyjson სერვერიდან
         const response = await fetch("https://dummyjson.com/users?limit=30");
         
         if (!response.ok) {
@@ -29,106 +39,102 @@ async function fetchClientsFromAPI() {
 
         const data = await response.json();
 
-        // .map() მეთოდით API-დან წამოღებულ იუზერებს ვაქცევთ CRM-ის კლიენტებად
+        // მონაცემთა ტრანსფორმაცია PRD სტრუქტურის მიხედვით
         const transformedClients = data.users.map(user => {
-            // სტატუსების მასივი რეალური CRM-ის სიმულაციისთვის
-            const statuses = ["Lead", "Contacted", "In Progress", "Won", "Lost"];
-            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
-            // შემთხვევითი გარიგების თანხა (Deal Value) 500$-დან 15000$-მდე
+            const randomStatus = ALLOWED_STATUSES[Math.floor(Math.random() * ALLOWED_STATUSES.length)];
             const randomDealValue = Math.floor(Math.random() * 14500) + 500;
 
             return {
-                id: `cli_${user.id}`,
-                fullName: `${user.firstName} ${user.lastName}`,
+                id: user.id, // რიცხვითი ID მარტივი წაშლისთვის
+                name: `${user.firstName} ${user.lastName}`,
                 email: user.email,
+                phone: user.phone || "",
                 company: user.company?.name || "Independent Contractor",
                 status: randomStatus,
                 dealValue: randomDealValue,
-                avatar: user.image,
-                notes: [], // საწყის ეტაპზე შენიშვნები ცარიელია
-                createdAt: new Date(Date.now() - Math.random() * 1000000000).toISOString() // შემთხვევითი თარიღი წარსულში
+                image: user.image,
+                notes: [],
+                createdAt: new Date(Date.now() - Math.random() * 1000000000).toISOString()
             };
         });
 
-        // მიღებულ მასივს უსაფრთხოდ ვინახავთ localStorage-ში
+        // მასივის შენახვა ლოკალურად
         StorageManager.set("crm_clients", transformedClients);
         return transformedClients;
 
     } catch (error) {
-        console.error("Failed to fetch clients from API:", error);
+        console.error("კლიენტების წამოღება API-დან ჩავარდა:", error);
 
         if (clientsContainer) {
-            // 1. ვასუფთავებთ კონტეინერს
             clientsContainer.innerHTML = "";
 
-            // 2. ვქმნით შეცდომის მთავარ კონტეინერს
             const errorDiv = document.createElement("div");
             errorDiv.className = "error-state";
 
-            // 3. ვქმნით შეცდომის ტექსტს
             const errorMessage = document.createElement("p");
             errorMessage.textContent = "Failed to load clients. Please check your internet connection.";
 
-            // 4. ვქმნით Retry ღილაკს
             const retryButton = document.createElement("button");
             retryButton.className = "btn-primary";
             retryButton.textContent = "Retry";
-
-            // საუკეთესო პრაქტიკა: ივენთს ვამაგრებთ პირდაპირ JS-იდან და არა HTML-ში
             retryButton.addEventListener("click", initClientsPage);
 
-            // 5. ვაერთიანებთ ელემენტებს
             errorDiv.appendChild(errorMessage);
             errorDiv.appendChild(retryButton);
-
-            // 6. ვსვამთ მთავარ კონტეინერში
             clientsContainer.appendChild(errorDiv);
         }
         return null;
     }
 }
 
-// 4. სრულფასოვანი და უსაფრთხო DOM რენდერი (3.2 ფიჩერი)
+// ==========================================================================
+// 3. DOM რენდერი (ეტაპი 3.2)
+// ==========================================================================
+
+// კლიენტების ბარათების დინამიური აწყობა HTML-ში
 function renderClients(clientsList) {
     if (!clientsContainer) return;
     
-    // კონტეინერის სრული გასუფთავება ძველი ტექსტებისგან
     clientsContainer.innerHTML = ""; 
 
-    clientsList.forEach(client => {
-        // ვქმნით ბარათის მთავარ კონტეინერს
-        const card = document.createElement("div");
-        card.className = "client-card";
-        card.id = client.id;
+    if (clientsList.length === 0) {
+        clientsContainer.innerHTML = `<p class="no-clients">No clients found</p>`;
+        return;
+    }
 
-        // ა) ჰედერი: ავატარი და სტატუსის ბეიჯი
+    clientsList.forEach(client => {
+        const card = document.createElement("div");
+        card.className = `client-card status-${client.status.toLowerCase()}`;
+        card.setAttribute("data-id", client.id);
+
+        // ა) ჰედერი: ავატარი და სტატუსი
         const headerNode = document.createElement("div");
         headerNode.className = "card-header";
 
         const avatarNode = document.createElement("img");
         avatarNode.className = "client-avatar";
-        avatarNode.src = client.avatar; // სურათის ლინკი ბაზიდან
-        avatarNode.alt = client.fullName;
-        avatarNode.style.width = "50px"; // დროებითი ზომა, სანამ CSS-ს დავწერთ
+        avatarNode.src = client.image;
+        avatarNode.alt = client.name;
+        avatarNode.style.width = "50px"; 
         avatarNode.style.borderRadius = "50%";
 
         const statusNode = document.createElement("span");
-        statusNode.className = `status-badge ${client.status.toLowerCase().replace(" ", "-")}`;
-        statusNode.textContent = ` [${client.status}]`;
+        statusNode.className = `status-badge ${client.status.toLowerCase()}`;
+        statusNode.textContent = client.status;
 
         headerNode.appendChild(avatarNode);
         headerNode.appendChild(statusNode);
 
-        // ბ) ბოდი: სახელი, კომპანია და იმეილი
+        // ბ) ბოდი: ინფორმაცია
         const bodyNode = document.createElement("div");
         bodyNode.className = "card-body";
 
         const nameNode = document.createElement("h3");
-        nameNode.textContent = client.fullName; // XSS დაცვა
+        nameNode.textContent = client.name; // XSS დაცვა
 
         const companyNode = document.createElement("p");
         companyNode.className = "company";
-        companyNode.textContent = `Company: ${client.company}`; // კომპანიის სახელი
+        companyNode.textContent = `Company: ${client.company}`;
 
         const emailNode = document.createElement("p");
         emailNode.className = "email";
@@ -138,26 +144,205 @@ function renderClients(clientsList) {
         bodyNode.appendChild(companyNode);
         bodyNode.appendChild(emailNode);
 
-        // გ) ფუტერი: გარიგების თანხა
+        // გ) ფუტერი: თანხა და წაშლის ღილაკი
         const footerNode = document.createElement("div");
         footerNode.className = "card-footer";
         
         const valueNode = document.createElement("span");
         valueNode.className = "deal-value";
-        valueNode.textContent = ` Value: $${client.dealValue.toLocaleString()}`;
+        valueNode.textContent = `Value: $${client.dealValue.toLocaleString()}`;
         
-        footerNode.appendChild(valueNode);
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "btn-delete";
+        deleteBtn.textContent = "Delete";
+        // წაშლის ივენთის მიბმა პირდაპირ JS-იდან
+        deleteBtn.addEventListener("click", () => deleteClient(client.id));
 
-        // ვაერთიანებთ ყველაფერს მთავარ ბარათში
+        footerNode.appendChild(valueNode);
+        footerNode.appendChild(deleteBtn);
+
         card.appendChild(headerNode);
         card.appendChild(bodyNode);
         card.appendChild(footerNode);
 
-        // ბარათს ვსვამთ HTML კონტეინერში
         clientsContainer.appendChild(card);
     });
 }
 
+// ==========================================================================
+// 4. კლიენტის წაშლა (ეტაპი 3.4)
+// ==========================================================================
+function deleteClient(clientId) {
+    const isConfirmed = confirm("Are you sure you want to delete this client?");
+    
+    if (!isConfirmed) return;
 
-// აუცილებლად ვუშვებთ ფუნქციას ფაილის ბოლოს
+    let currentClients = StorageManager.get("crm_clients") || [];
+
+    // მასივის გაფილტვრა წასაშლელი ID-ის გარეშე
+    currentClients = currentClients.filter(client => client.id !== clientId);
+
+    StorageManager.set("crm_clients", currentClients);
+    renderClients(currentClients);
+
+    if (typeof showToast === 'function') {
+        showToast('Client deleted successfully', 'success');
+    }
+}
+// ==========================================================================
+// 5. მოდალის მართვა და დამხმარე ფუნქციები (ეტაპი 3.3)
+// ==========================================================================
+
+// მოდალის დახურვის და ფორმის ველების სრული გასუფთავების ფუნქცია
+function closeAndResetModal() {
+    if (addClientModal) addClientModal.style.display = 'none';
+    if (addClientForm) addClientForm.reset();
+    
+    // შეცდომების ტექსტებისა და წითელი ჩარჩოების მოხსნა
+    document.querySelectorAll('.error-msg').forEach(el => el.textContent = '');
+    document.querySelectorAll('input, select').forEach(el => el.classList.remove('input-error'));
+}
+
+// დამხმარე ფუნქცია კონკრეტულ ველზე შეცდომის ვიზუალურად გამოსატანად
+function showFieldError(inputId, errorSpanId, errorMessage) {
+    const inputElement = document.getElementById(inputId);
+    const errorSpanElement = document.getElementById(errorSpanId);
+    
+    if (inputElement) inputElement.classList.add('input-error');
+    if (errorSpanElement) errorSpanElement.textContent = errorMessage;
+}
+
+
+// ==========================================================================
+// 6. ივენთები და ფორმის ვალიდაცია / საბმიტი (ეტაპი 3.3)
+// ==========================================================================
+
+// მოდალის გახსნა "Add Client" ღილაკზე დაჭერისას
+if (openModalBtn) {
+    openModalBtn.addEventListener('click', () => {
+        if (addClientModal) addClientModal.style.display = 'flex';
+    });
+}
+
+// მოდალის დახურვა "X" ღილაკზე დაჭერისას
+if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeAndResetModal);
+}
+
+// მოდალის დახურვა ფონზე (მუქ სივრცეზე) დაჭერისას
+window.addEventListener('click', (e) => {
+    if (e.target === addClientModal) {
+        closeAndResetModal();
+    }
+});
+
+// ფორმის გაგზავნის და კომპლექსური ვალიდაციის ლოგიკა
+if (addClientForm) {
+    addClientForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // გვერდის გადატვირთვის მყისიერი ბლოკირება
+
+        // ძველი შეცდომების სრული ქლიარი ახალი შემოწმების წინ
+        document.querySelectorAll('.error-msg').forEach(el => el.textContent = '');
+        document.querySelectorAll('input, select').forEach(el => el.classList.remove('input-error'));
+
+        // მნიშვნელობების ამოღება ზუსტად HTML ინპუტებიდან
+        const nameVal = document.getElementById('client-name').value.trim();
+        const emailVal = document.getElementById('client-email').value.trim();
+        const phoneVal = document.getElementById('client-phone').value.trim();
+        const companyVal = document.getElementById('client-company').value.trim();
+        const dealValueVal = document.getElementById('client-value').value.trim();
+        const statusVal = document.getElementById('client-status').value;
+
+        let hasError = false;
+        const currentClients = StorageManager.get('crm_clients') || [];
+
+        // ა) Name ვალიდაცია (მინიმუმ 3 სიმბოლო)
+        if (nameVal.length < 3) {
+            showFieldError('client-name', 'nameError', 'Name must be at least 3 characters');
+            hasError = true;
+        }
+
+        // ბ) Email ვალიდაცია (სწორი ფორმატი და უნიკალურობა ბაზაში)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailVal)) {
+            showFieldError('client-email', 'emailError', 'Please enter a valid email address');
+            hasError = true;
+        } else {
+            const isEmailDuplicate = currentClients.some(c => c.email.toLowerCase() === emailVal.toLowerCase());
+            if (isEmailDuplicate) {
+                showFieldError('client-email', 'emailError', 'A client with this email already exists');
+                hasError = true;
+            }
+        }
+
+        // გ) Phone ვალიდაცია (არასავალდებულო, მაგრამ თუ შევსებულია - მინიმუმ 6 სიმბოლო)
+        if (phoneVal.length > 0 && phoneVal.length < 6) {
+            showFieldError('client-phone', 'phoneError', 'Phone number looks too short');
+            hasError = true;
+        }
+
+        // დ) Deal Value ვალიდაცია (სავალდებულო, მხოლოდ დადებითი რიცხვი)
+        const parsedValue = Number(dealValueVal);
+        if (!dealValueVal || isNaN(parsedValue) || parsedValue <= 0) {
+            showFieldError('client-value', 'dealValueError', 'Deal value must be a positive number');
+            hasError = true;
+        }
+
+        // თუ რომელიმე ვალიდაცია ჩავარდა, ვაჩერებთ კოდის შესრულებას
+        if (hasError) return;
+
+        // ახალი კლიენტის ობიექტის აწყობა PRD სტრუქტურით
+        const newClient = {
+            id: Date.now(), // უნიკალური ID დროის მიხედვით
+            name: nameVal,
+            email: emailVal,
+            phone: phoneVal || "",
+            company: companyVal || "Independent Contractor",
+            image: `https://dummyjson.com{Math.floor(Math.random() * 50) + 1}`, 
+            status: statusVal, 
+            dealValue: parsedValue,
+            notes: [],
+            createdAt: new Date().toISOString()
+        };
+
+        try {
+            // იმიტირებული POST რექვესტი DummyJSON-ზე
+            const response = await fetch('https://dummyjson.com/users?limit=30', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    firstName: nameVal,
+                    email: emailVal
+                })
+            });
+
+            if (!response.ok) throw new Error('API Request Failed');
+
+            // ახალი კლიენტის ჩამატება მასივის დასაწყისში (unshift)
+            currentClients.unshift(newClient);
+            StorageManager.set('crm_clients', currentClients);
+
+            // UI სიის მყისიერი განახლება და მოდალის დახურვა
+            renderClients(currentClients);
+            closeAndResetModal();
+
+            // წარმატების თოასტი (თუ showToast ფუნქცია არსებობს)
+            if (typeof showToast === 'function') {
+                showToast('Client added ✓', 'success');
+            }
+
+        } catch (error) {
+            console.error('კლიენტის დამატებისას დაფიქსირდა შეცდომა:', error);
+            // ფოლბექი: სერვერის შეცდომის მიუხედავად, ლოკალურად მაინც ვინახავთ მონაცემს
+            currentClients.unshift(newClient);
+            StorageManager.set('crm_clients', currentClients);
+            renderClients(currentClients);
+            closeAndResetModal();
+        }
+    });
+}
+
+// ==========================================================================
+// 7. გვერდის ავტომატური გაშვება ჩატვირთვისას
+// ==========================================================================
 initClientsPage();
