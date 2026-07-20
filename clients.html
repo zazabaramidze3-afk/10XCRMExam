@@ -69,6 +69,58 @@
         </main>
     </div>
 
+    <!-- ახალი კლიენტის დამატების მოდალი -->
+    <div id="add-client-modal" class="modal">
+        <div class="modal-content">
+            <span id="btn-close-modal" class="close-btn">&times;</span>
+            <h3>Add New Client</h3>
+    
+            <form id="add-client-form">
+                <div class="form-group">
+                    <label for="client-name">Name *</label>
+                    <input type="text" id="client-name" required>
+                    <span id="nameError" class="error-msg"></span>
+                </div>
+            
+                <div class="form-group">
+                    <label for="client-email">Email *</label>
+                    <input type="email" id="client-email" required>
+                    <span id="emailError" class="error-msg"></span>
+                </div>
+            
+                <div class="form-group">
+                    <label for="client-phone">Phone</label>
+                    <input type="text" id="client-phone">
+                    <span id="phoneError" class="error-msg"></span>
+                </div>
+            
+                <div class="form-group">
+                    <label for="client-company">Company</label>
+                    <input type="text" id="client-company" placeholder="Independent Contractor">
+                </div>
+            
+                <div class="form-group">
+                    <label for="client-value">Deal Value ($) *</label>
+                    <input type="number" id="client-value" min="0" required>
+                    <span id="dealValueError" class="error-msg"></span>
+                </div>
+            
+                <div class="form-group">
+                    <label for="client-status">Status *</label>
+                    <select id="client-status" required>
+                        <option value="Lead" selected>Lead</option>
+                        <option value="Contacted">Contacted</option>
+                        <option value="Won">Won</option>
+                        <option value="Lost">Lost</option>
+                    </select>
+                </div>
+            
+                <button type="submit" class="btn-submit">Save Client</button>
+            </form>
+
+        </div>
+    </div>
+
 </body>
 
 </html>
