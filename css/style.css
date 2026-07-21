@@ -505,3 +505,40 @@ h1 {
   color: #2563eb;
   background-color: #eff6ff;
 }
+
+/* მისალმების კონტეინერი */
+.welcome-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 32px; /* დაშორება ანალიტიკის ბარათებამდე */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* ტექსტის ბლოკი */
+.welcome-text h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #0f172a;
+}
+
+.welcome-text p {
+  margin: 4px 0 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* საათის ბლოკი პილულისებრი დიზაინით */
+.live-clock {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+  background: #f1f5f9;
+  padding: 10px 18px;
+  border-radius: 30px;
+  letter-spacing: 0.5px;
+}

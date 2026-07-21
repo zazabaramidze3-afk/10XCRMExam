@@ -1,6 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. წამოვიღოთ მონაცემები (შეცვალეთ 'clients' იმ ქიით, რაც რეალურად გიწერიათ ბაზაში)
+  // 1. წამოვიღოთ კლიენტების მონაცემები (თქვენთან ბაზაში ქვია 'crm_clients')
   const savedClients = JSON.parse(localStorage.getItem('crm_clients')) || [];
+
+  // 2. მომხმარებლის რეალური სახელის წამოღება (თქვენთან ბაზაში ქვია 'crm_session')
+  const sessionData = localStorage.getItem('crm_session');
+  
+  if (sessionData) {
+    try {
+      const userObj = JSON.parse(sessionData);
+      // სკრინშოტის მიხედვით, ობიექტში ველს ქვია 'fullName'
+      if (userObj && userObj.fullName) {
+        document.getElementById('userName').textContent = userObj.fullName;
+      } else {
+        document.getElementById('userName').textContent = 'მომხმარებელო';
+      }
+    } catch (error) {
+      console.error("სესიის მონაცემების წაკითხვის შეცდომა:", error);
+      document.getElementById('userName').textContent = 'მომხმარებელო';
+    }
+  } else {
+    document.getElementById('userName').textContent = 'სტუმარო';
+  }
 
   // თუ მასივი ცარიელია, ეკრანზე ნულები დარჩება და კონსოლში დაგვილოგავს
   if (savedClients.length === 0) {
@@ -45,3 +65,49 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('conversionRate').textContent = `${conversionRate}%`;
   document.getElementById('totalClients').textContent = metrics.totalCount;
 });
+
+  // --- ეტაპი 4.1: მისალმების ზოლი და ცოცხალი საათი ---
+  
+   // 1. მომხმარებლის რეალური სახელის წამოღება სესიიდან (current_session)
+  const sessionData = localStorage.getItem('crm_session');
+  
+  if (sessionData) {
+    try {
+      const userObj = JSON.parse(sessionData);
+      // თუ ობიექტში არის 'name' ველი, ჩავსვათ ეკრანზე
+      if (userObj && userObj.name) {
+        document.getElementById('userName').textContent = userObj.name;
+      } else {
+        document.getElementById('userName').textContent = 'მომხმარებელო';
+      }
+    } catch (error) {
+      console.error("სესიის მონაცემების წაკითხვის შეცდომა:", error);
+      document.getElementById('userName').textContent = 'მომხმარებელო';
+    }
+  } else {
+    document.getElementById('userName').textContent = 'სტუმარო';
+  }
+
+  // 2. ცოცხალი საათის მართვა
+  const timeEl = document.getElementById('liveTime');
+  const dateEl = document.getElementById('currentDate');
+
+  const updateClock = () => {
+    const now = new Date();
+    
+    // დროის ფორმატირება (HH:MM:SS) ქართული ლოკალით
+    timeEl.textContent = now.toLocaleTimeString('ka-GE', { hour12: false });
+    
+    // თარიღის ფორმატირება (მაგ: 21 ივლ. 2026)
+    dateEl.textContent = now.toLocaleDateString('ka-GE', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric' 
+    });
+  };
+
+  // პირველივე გაშვება (რომ 00:00:00 არ დააყოვნოს 1 წამით)
+  updateClock(); 
+  
+  // ყოველ წამში საათის განახლება
+  setInterval(updateClock, 1000);
