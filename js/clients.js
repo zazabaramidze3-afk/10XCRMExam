@@ -346,3 +346,161 @@ if (addClientForm) {
 // 7. გვერდის ავტომატური გაშვება ჩატვირთვისას
 // ==========================================================================
 initClientsPage();
+
+// ==========================================================================
+// 7. ძებნა და ფილტრაცია
+// ==========================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. DOM ელემენტების წამოღება HTML-იდან
+  const searchInput = document.getElementById('search-input');
+  const statusFilter = document.getElementById('status-filter');
+  const sortBySelect = document.getElementById('sort-by');
+  const clientsContainer = document.getElementById('clients-container');
+
+  // 2. ცენტრალური ფილტრაციის, სორტირების და რენდერის ფუნქცია
+  const filterAndRenderClients = () => {
+    // ყოველთვის ვკითხულობთ განახლებულ მასივს ბაზიდან (გასაღები: crm_clients)
+    const allClients = JSON.parse(localStorage.getItem('crm_clients')) || [];
+
+    // ინპუტების მიმდინარე მნიშვნელობების აღება
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    const selectedStatus = statusFilter.value;
+    const sortBy = sortBySelect.value;
+
+    // --- ფაზა 1: ტექსტური ძებნა (სახელით, მეილით ან კომპანიით) ---
+    let filteredClients = allClients.filter(client => {
+      const name = (client.fullName || client.name || '').toLowerCase();
+      const email = (client.email || '').toLowerCase();
+      const company = (client.company || '').toLowerCase();
+
+      return name.includes(searchTerm) || 
+             email.includes(searchTerm) || 
+             company.includes(searchTerm);
+    });
+
+    // --- ფაზა 2: ფილტრაცია სტატუსის მიხედვით ---
+    if (selectedStatus !== 'all') {
+      filteredClients = filteredClients.filter(client => {
+        return client.status && client.status.toUpperCase() === selectedStatus.toUpperCase();
+      });
+    }
+
+    // --- ფაზა 3: სორტირება ---
+    filteredClients.sort((a, b) => {
+      if (sortBy === 'name-asc') {
+        const nameA = (a.fullName || a.name || '');
+        const nameB = (b.fullName || b.name || '');
+        return nameA.localeCompare(nameB);
+      }
+      
+      if (sortBy === 'name-desc') {
+        const nameA = (a.fullName || a.name || '');
+        const nameB = (b.fullName || b.name || '');
+        return nameB.localeCompare(nameA);
+      }
+      
+      if (sortBy === 'value-high') {
+        return (Number(b.dealValue) || 0) - (Number(a.dealValue) || 0);
+      }
+      
+      if (sortBy === 'value-low') {
+        return (Number(a.dealValue) || 0) - (Number(b.dealValue) || 0);
+      }
+      
+      return 0;
+    });
+
+    // --- ფაზა 4: DOM რენდერი (ეკრანზე გამოტანა) ---
+    renderClientsList(filteredClients);
+  };
+
+  // 3. ეკრანზე ქარდების დახატვის დამხმარე ფუნქცია
+  const renderClientsList = (clientsList) => {
+    clientsContainer.innerHTML = ''; // ძველი ქარდების გასუფთავება
+
+    if (clientsList.length === 0) {
+      clientsContainer.innerHTML = '<div class="no-results">კლიენტები ვერ მოიძებნა 🔍</div>';
+      return;
+    }
+
+    clientsList.forEach(client => {
+      const card = document.createElement('div');
+      card.className = 'client-card';
+      
+      // მნიშვნელობების მომზადება
+      const name = client.fullName || client.name || 'Unknown';
+      const company = client.company || 'Independent Contractor';
+      const value = Number(client.dealValue) || 0;
+      const status = client.status || 'Lead';
+      const email = client.email || '';
+      const image = client.image || 'https://placeholder.com';
+
+      // 1. წინასწარ მოვამზადოთ უსაფრთხო სტატუსის კლასი CSS-ისთვის (მხოლოდ ასოები და ტირე)
+      const safeStatusClass = String(status).toLowerCase().replace(/[^a-z0-9]/g, '-');
+
+      // 2. HTML-ში ვტოვებთ მხოლოდ იმას, რაც გარანტირებულად რიცხვია ან უსაფრთხო ID-ია
+      card.innerHTML = `
+        <div class="client-avatar">
+          <img class="client-img" src="" alt="">
+        </div>
+        <div class="client-info">
+          <h4 class="client-name"></h4>
+          <p class="client-company"></p>
+          <p class="client-email"></p>
+          <span class="status-badge ${safeStatusClass}"></span>
+        </div>
+        <div class="client-footer">
+          <span class="client-value">$${Number(value).toLocaleString()}</span>
+          <button class="btn-delete" data-id="${client.id}">🗑️</button>
+        </div>
+      `;
+
+      // 3. აბსოლუტურად ყველა ტექსტს და ატრიბუტს ვსვამთ უსაფრთხო მეთოდებით (XSS Protection)
+      card.querySelector('.client-name').textContent = name;
+      card.querySelector('.client-company').textContent = company;
+      card.querySelector('.client-email').textContent = email;
+      card.querySelector('.status-badge').textContent = status;
+      
+      // სურათის ატრიბუტების უსაფრთხო დასმა
+      const imgEl = card.querySelector('.client-img');
+      imgEl.src = image;
+      imgEl.alt = name;
+
+      clientsContainer.appendChild(card);
+    });
+
+    // წაშლის ივენთების თავიდან მიბმა ახლად დახატულ ღილაკებზე
+    attachDeleteEvents();
+  };
+
+  // 4. წაშლის ფუნქციონალი (სინქრონიზებული ფილტრებთან)
+  const attachDeleteEvents = () => {
+    const deleteButtons = document.querySelectorAll('.btn-delete');
+    deleteButtons.forEach(button => {
+      button.onclick = (e) => {
+        const clientId = e.target.getAttribute('data-id');
+        
+        if (confirm('ნამდვილად გსურთ კლიენტის წაშლა?')) {
+          const allClients = JSON.parse(localStorage.getItem('crm_clients')) || [];
+          
+          // ვფილტრავთ მასივს წაშლილი იუზერის გარეშე
+          const updatedClients = allClients.filter(c => String(c.id) !== String(clientId));
+          
+          // ვინახავთ ბაზაში
+          localStorage.setItem('crm_clients', JSON.stringify(updatedClients));
+          
+          // ვიძახებთ ცენტრალურ ფილტრაციას (ინარჩუნებს მიმდინარე ფილტრებს ეკრანზე)
+          filterAndRenderClients();
+        }
+      };
+    });
+  };
+
+  // 5. ივენთების მსმენელები (Event Listeners) ყველა ფილტრისთვის
+  searchInput.addEventListener('input', filterAndRenderClients);
+  statusFilter.addEventListener('change', filterAndRenderClients);
+  sortBySelect.addEventListener('change', filterAndRenderClients);
+
+  // პირველადი გაშვება გვერდის ჩატვირთვისას
+  filterAndRenderClients();
+});
