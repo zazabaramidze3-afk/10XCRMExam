@@ -9,11 +9,16 @@
 }
 
 body {
-    background-color: #f1f5f9; /* ღია ნაცრისფერი ფონი შიდა გვერდებისთვის */
+    background-color: #f8fafc;
     color: #0f172a;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0 auto;
+    padding: 40px 60px; 
+    max-width: 1280px;
+    box-sizing: border-box;
 }
 
 /* მთავარი აპლიკაციის მაქსიმალური სიგანის კონტეინერი */
@@ -384,3 +389,119 @@ body {
 }
 
 .btn-submit:hover { background-color: #1d4ed8; }
+
+
+/* მთავარი კონტეინერი, რომელიც ზღუდავს სიგანეს და ცენტრში სვამს კონტენტს */
+.dashboard-container {
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 28px;
+  color: #0f172a;
+}
+
+/* ბადის სტრუქტურა 4 თანაბარი სვეტისთვის */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* ზუსტად 4 თანაბარი სვეტი */
+  gap: 24px;
+}
+
+/* ბარათების დახვეწილი დიზაინი */
+.metric-card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px; /* უფრო მომრგვალებული კუთხეები */
+  border: 1px solid #e2e8f0; /* ნაზი ჩარჩო */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+/* ბარათის პატარა სათაურები */
+.metric-card h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+/* ციფრების სტილი */
+.metric-card p {
+  margin: 10px 0 0 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* ფერადი აქცენტები თითოეული ბარათისთვის (ვიზუალური იერარქია) */
+.metric-card:nth-child(1) p { color: #2563eb; } /* ლურჯი Pipeline */
+.metric-card:nth-child(2) p { color: #16a34a; } /* მწვანე Revenue */
+.metric-card:nth-child(3) p { color: #ea580c; } /* ნარინჯისფერი Rate */
+
+/* რესპონსივი: პლანშეტებზე 2x2-ზე დაჯდება, ტელეფონებზე 1 სვეტად */
+@media (max-width: 1024px) {
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .metrics-grid { grid-template-columns: 1fr; }
+}
+
+/* ნავიგაციის კონტეინერი */
+.crm-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 16px 32px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 32px; /* დაშორება მისალმების ზოლამდე */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* ბრენდის/ლოგოს სტილი */
+.nav-brand {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* ლინკების ბლოკი */
+.nav-links {
+  display: flex;
+  gap: 12px;
+}
+
+/* თითოეული ლინკის სტილი */
+.nav-item {
+  text-decoration: none;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+/* ლინკზე მიტანისას (Hover) */
+.nav-item:hover {
+  color: #0f172a;
+  background-color: #f1f5f9;
+}
+
+/* აქტიური გვერდის ლინკი (რომ მიხვდეს იუზერი სად იმყოფება) */
+.nav-item.active {
+  color: #2563eb;
+  background-color: #eff6ff;
+}
