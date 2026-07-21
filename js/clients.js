@@ -307,7 +307,7 @@ if (addClientForm) {
 
         try {
             // იმიტირებული POST რექვესტი DummyJSON-ზე
-            const response = await fetch('https://dummyjson.com/users?limit=30', {
+            const response = await fetch('https://dummyjson.com/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
