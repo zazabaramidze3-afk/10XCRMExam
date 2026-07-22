@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('crm_session', JSON.stringify(currentSession));
 
             passwordForm.reset(); 
-            // showProfileToast('პაროლი წარმატებით შეიცვალა!');
+            showProfileToast('პაროლი წარმატებით შეიცვალა!');
             // Redirect auth page
             localStorage.removeItem('crm_session');
             window.location.href = "index.html";
@@ -151,3 +151,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// ტოსტ შეტყობინების function
+function showProfileToast(message, isSuccess = true) {
+    // 1. ვამოწმებთ, ძველი ტოსტი ხომ არ არის უკვე ეკრანზე, რომ არ გაორმაგდეს
+    let toast = document.getElementById('dynamic-profile-toast');
+    
+    if (!toast) {
+        // 2. თუ არ არსებობს, ვქმნით ახალ div-ს
+        toast = document.createElement('div');
+        toast.id = 'dynamic-profile-toast';
+        document.body.appendChild(toast);
+    }
+
+    // 3. ვწერთ გადაცემულ ტექსტს
+    toast.textContent = message;
+
+    // 4. თქვენს მუქ დიზაინს რომ მოუხდეს - ლამაზი სტილები (Tailwind-ის გარეშე, სუფთა JS-ით)
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.right = '20px';
+    toast.style.padding = '12px 24px';
+    toast.style.borderRadius = '8px';
+    toast.style.color = '#ffffff';
+    toast.style.fontSize = '14px';
+    toast.style.fontWeight = '500';
+    toast.style.zIndex = '9999';
+    toast.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+    toast.style.transition = 'all 0.3s ease';
+
+    // PRD სტანდარტი: მწვანე წარმატებისთვის, წითელი შეცდომისთვის
+    if (isSuccess) {
+        toast.style.backgroundColor = '#22c55e'; // მწვანე
+    } else {
+        toast.style.backgroundColor = '#ef4444'; // წითელი
+    }
+
+    // 5. გამოვაჩინოთ ეკრანზე
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+
+    // PRD მოთხოვნა (გვერდი 7): ავტომატურად გაქრეს ზუსტად 3 წამში
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+        // გაქრობის ანიმაციის შემდეგ სრულად ვშლით DOM-იდან
+        setTimeout(() => { toast.remove(); }, 300);
+    }, 3000);
+}
+
