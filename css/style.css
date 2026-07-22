@@ -816,3 +816,67 @@ h1 {
 .btn-danger:hover {
   background-color: #b91c1c;
 }
+
+/* დარკ მოუდის ვიზუალური ფიქსები (UI Polish) */
+
+/* 1. მოდალის შიდა ტექსტების ფერი მუქ თემაზე */
+[data-theme="dark"] #confirm-modal p,
+[data-theme="dark"] .modal-content p {
+  color: #e2e8f0 !important; /* ღია თეთრი/ნაცრისფერი ტექსტი */
+}
+
+/* 2. ინპუტების (Form Inputs) ფერების გასწორება მუქ თემაზე */
+[data-theme="dark"] .form-group label {
+  color: var(--text-muted) !important; /* ლეიბლები გახდება უფრო მკაფიო */
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group select,
+[data-theme="dark"] .notes-section textarea {
+  background-color: #334155 !important; /* ინპუტის შიდა ფონი გახდება ოდნავ ღია მუქი */
+  color: #ffffff !important;             /* შეყვანილი ტექსტი იქნება თეთრი */
+  border-color: #475569 !important;       /* ჩარჩოს ფერი */
+}
+
+/* ინპუტების Placeholder-ის ფერი მუქ თემაზე */
+[data-theme="dark"] .form-group input::placeholder,
+[data-theme="dark"] .notes-section textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Danger Zone ტექსტის კონტრასტი მუქ თემაზე */
+[data-theme="dark"] .danger-zone p {
+  color: #fca5a5 !important; /* ღია, რბილი წითელი ფერი მუქ ფონზე იდეალური კონტრასტისთვის */
+}
+
+/* Danger Zone სათაურის ფერი მუქ თემაზე */
+[data-theme="dark"] .danger-zone h3 {
+  color: #f87171 !important;
+}
+
+/*დეტალების მოდალის ვიზუალური ფიქსი მუქ თემაზე */
+[data-theme="dark"] #details-modal h3,
+[data-theme="dark"] #details-modal h4 {
+  color: var(--text-main) !important; /* სათაურები გახდება თეთრი/ღია ფერის */
+}
+
+[data-theme="dark"] #details-modal p strong {
+  color: var(--text-main) !important; /* "კომპანია:", "სტატუსი:" – თეგები გამონათდება */
+}
+
+[data-theme="dark"] #details-modal p {
+  color: var(--text-muted) !important; /* თავად დინამიური მნიშვნელობები */
+}
+
+/* ინპუტების და ტექსტარეას ფონები დეტალების მოდალშიც */
+[data-theme="dark"] #notes-textarea,
+[data-theme="dark"] #reminder-seconds {
+  background-color: #334155 !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] #notes-textarea::placeholder,
+[data-theme="dark"] #reminder-seconds::placeholder {
+  color: #94a3b8 !important;
+}
