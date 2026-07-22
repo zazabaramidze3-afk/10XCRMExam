@@ -1,25 +1,46 @@
 /* ==========================================
-/* 1. გლობალური სტილები და ბაზა
-/* ========================================== */
+   1. გლობალური სტილები და ბაზა
+   ========================================== */
+
+/* ნაგულისხმევი ღია თემა */
+:root {
+  --bg-primary: #f8fafc;
+  --bg-card: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+}
+
+/* მუქი თემის ცვლადები */
+[data-theme="dark"] {
+  --bg-primary: #0f172a;   /* მუქი ლურჯი/შავი ფონი */
+  --bg-card: #1e293b;      /* შედარებით ღია მუქი ბარათებისთვის */
+  --text-main: #f8fafc;    /* თეთრი ტექსტი */
+  --text-muted: #94a3b8;   /* ნაცრისფერი ტექსტი */
+  --border-color: #334155; /* მუქი ჩარჩოები */
+}
+
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box; /* უზრუნველყოფს პადინგების სწორ დათვლას ზომებში */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* უზრუნველყოფს ზომების სწორ დათვლას ჩარჩოში */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background-color: #f8fafc;
-    color: #0f172a;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0 auto;
-    padding: 40px 60px; 
-    max-width: 1280px;
-    box-sizing: border-box;
+  /*ძველი ფერების ნაცვლად ვიყენებთ დინამიურ ცვლადებს */
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease; /* რბილი გადასვლის ეფექტი */
+  
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  padding: 40px 60px;
+  max-width: 1280px;
 }
+
 
 /* მთავარი აპლიკაციის მაქსიმალური სიგანის კონტეინერი */
 .app-container {
@@ -156,7 +177,7 @@ body {
 /* ========================================== */
 /* მთავარი ზედა მენიუ */
 .main-header {
-    background-color: #ffffff;
+    background-color: var(--bg-card);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -229,7 +250,7 @@ body {
 
 /* ძებნისა და ფილტრაციის პანელი */
 .toolbar {
-    background-color: #ffffff;
+    background-color: var(--bg-card);
     padding: 16px;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -352,7 +373,7 @@ body {
 
 /* მოდალის შიდა თეთრი კონტეინერი */
 .modal-content {
-    background-color: #ffffff;
+    background-color: var(--bg-card);
     padding: 30px;
     border-radius: 8px;
     width: 100%;
@@ -678,11 +699,14 @@ h1 {
   margin-bottom: 10px;
   font-family: inherit;
 }
+.notes-section h4{
+    margin-bottom: 10px;
+}
 
 .reminder-inputs {
   display: flex;
   gap: 10px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .reminder-inputs input {
@@ -690,6 +714,7 @@ h1 {
   padding: 8px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+  margin-top: 10px;
 }
 
 .reminder-status-msg {
