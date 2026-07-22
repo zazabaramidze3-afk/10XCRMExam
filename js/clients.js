@@ -466,6 +466,12 @@ document.addEventListener('DOMContentLoaded', () => {
       imgEl.src = image;
       imgEl.alt = name;
 
+      // ქარდზე დაწკაპუნების ივენთი
+      card.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-delete')) return;
+        openDetailsModal(client);
+      });
+
       clientsContainer.appendChild(card);
     });
 
@@ -503,4 +509,114 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // პირველადი გაშვება გვერდის ჩატვირთვისას
   filterAndRenderClients();
+
+  // ==========================================
+  // ეტაპი 5.1: Notes & Reminder ლოგიკა
+  // ==========================================
+  
+  let activeClientId = null; // აქ შევინახავთ იმ კლიენტის ID-ს, რომლის მოდალიც ღიაა
+  let reminderTimeoutId = null; // ტაიმერის ID, თუ იუზერს მისი გაუქმება მოუნდება
+
+  const detailsModal = document.getElementById('details-modal');
+  const btnCloseDetails = document.getElementById('btn-close-details');
+  const notesTextarea = document.getElementById('notes-textarea');
+  const btnSaveNotes = document.getElementById('btn-save-notes');
+  const reminderSecondsInput = document.getElementById('reminder-seconds');
+  const btnSetReminder = document.getElementById('btn-set-reminder');
+  const reminderStatus = document.getElementById('reminder-status');
+
+  // მოდალის გახსნა კონკრეტული კლიენტის მონაცემებით
+  const openDetailsModal = (client) => {
+    activeClientId = client.id;
+    
+    // მონაცემების დასმა მოდალში
+    document.getElementById('details-title').textContent = client.fullName || client.name;
+    document.getElementById('details-company').textContent = client.company || 'Independent Contractor';
+    document.getElementById('details-status').textContent = client.status || 'Lead';
+    document.getElementById('details-value').textContent = `$${(Number(client.dealValue) || 0).toLocaleString()}`;
+    
+    // ჩანაწერის (Notes) ჩატვირთვა ბაზიდან (თუ არსებობს)
+    notesTextarea.value = client.notes || '';
+    
+    // შეხსენების სტატუსის გასუფთავება
+    reminderStatus.textContent = '';
+    reminderSecondsInput.value = '';
+
+    detailsModal.style.display = 'flex';
+  };
+
+  // მოდალის დახურვა
+  btnCloseDetails.addEventListener('click', () => {
+    detailsModal.style.display = 'none';
+    activeClientId = null;
+  });
+
+  // 1. ჩანაწერების (Notes) შენახვა LocalStorage-ში
+  btnSaveNotes.addEventListener('click', () => {
+    if (!activeClientId) return;
+
+    const allClients = JSON.parse(localStorage.getItem('crm_clients')) || [];
+    
+    // ვპოულობთ მიმდინარე კლიენტს და ვუახლებთ notes ველს
+    const updatedClients = allClients.map(client => {
+      if (client.id === activeClientId) {
+        return { ...client, notes: notesTextarea.value.trim() };
+      }
+      return client;
+    });
+
+    localStorage.setItem('crm_clients', JSON.stringify(updatedClients));
+    showToast('ჩანაწერი წარმატებით შეინახა!', '📝');
+
+  });
+
+  // Toast შეტყობინების ფუნქცია დინამიური იკონით
+  const showToast = (message, icon = 'ℹ️') => {
+    const toast = document.createElement('div');
+    toast.className = 'crm-toast';
+    toast.innerHTML = `
+      <div class="toast-content">
+        <span class="toast-icon">${icon}</span>
+        <span class="toast-message"></span>
+      </div>
+    `;
+    
+    toast.querySelector('.toast-message').textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.classList.add('fade-out');
+      toast.addEventListener('transitionend', () => toast.remove());
+    }, 4000);
+  };
+
+
+  // 2. შეხსენების ტაიმერი (setTimeout)
+  btnSetReminder.addEventListener('click', () => {
+    const seconds = parseInt(reminderSecondsInput.value);
+    
+    if (isNaN(seconds) || seconds <= 0) {
+      reminderStatus.textContent = 'გთხოვთ შეიყვანოთ ვალიდური დრო წამებში!';
+      reminderStatus.style.color = '#b91c1c';
+      return;
+    }
+
+    // თუ ძველი ტაიმერი უკვე ჩართული იყო, ვაუქმებთ მას
+    if (reminderTimeoutId) clearTimeout(reminderTimeoutId);
+
+    const clientName = document.getElementById('details-title').textContent;
+    
+    reminderStatus.textContent = `⏱️ შეხსენება დაყენებულია ${seconds} წამში...`;
+    reminderStatus.style.color = '#2563eb';
+
+    // setTimeout-ის გაშვება
+    reminderTimeoutId = setTimeout(() => {
+      showToast(`დროა დაუკავშირდეთ კლიენტს - ${clientName}!`, '⏰');
+      reminderStatus.textContent = '✅ შეხსენება შესრულდა!';
+      reminderStatus.style.color = '#16a34a';
+    }, seconds * 1000);
+
+
+  })
 });
+

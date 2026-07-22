@@ -121,6 +121,42 @@
         </div>
     </div>
 
+    <!-- კლიენტის დეტალებისა და ჩანაწერების მოდალი -->
+    <div id="details-modal" class="modal">
+        <div class="modal-content">
+            <span id="btn-close-details" class="close-btn">&times;</span>
+            <h3 id="details-title">Client Details</h3>
+    
+            <div class="details-body">
+                <p><strong>კომპანია:</strong> <span id="details-company"></span></p>
+                <p><strong>სტატუსი:</strong> <span id="details-status"></span></p>
+                <p><strong>თანხა:</strong> <span id="details-value"></span></p>
+            </div>
+    
+            <hr>
+    
+            <!-- ჩანაწერების (Notes) სექცია -->
+            <div class="notes-section">
+                <h4>📝 ჩანაწერები (Notes)</h4>
+                <textarea id="notes-textarea" rows="4"
+                    placeholder="ჩაწერეთ მნიშვნელოვანი ინფორმაცია კლიენტზე..."></textarea>
+                <button id="btn-save-notes" class="btn-primary">შენახვა</button>
+            </div>
+    
+            <hr>
+    
+            <!-- შეხსენების (Reminder) სექცია -->
+            <div class="reminder-section">
+                <h4>⏰ შეხსენების ტაიმერი (Reminder)</h4>
+                <div class="reminder-inputs">
+                    <input type="number" id="reminder-seconds" min="1" placeholder="წამები (მაგ: 5)">
+                    <button id="btn-set-reminder" class="btn-submit">ტაიმერის ჩართვა</button>
+                </div>
+                <span id="reminder-status" class="reminder-status-msg"></span>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>
