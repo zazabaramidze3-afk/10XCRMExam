@@ -6,129 +6,147 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileNameInput = document.getElementById('profile-name');
     const profileEmailInput = document.getElementById('profile-email');
 
-    // 🎯 პროფესიონალური Toast შეტყობინების ფუნქცია
-    const showProfileToast = (message, isError = false) => {
-        const toast = document.createElement('div');
-        toast.className = 'crm-toast';
-        toast.style.borderLeft = isError ? '5px solid #dc2626' : '5px solid #16a34a';
-        toast.innerHTML = `
-            <div class="toast-content">
-                <span class="toast-icon">${isError ? '❌' : '✅'}</span>
-                <span class="toast-message"></span>
-            </div>
-        `;
-        toast.querySelector('.toast-message').textContent = message;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.classList.add('fade-out');
-            toast.addEventListener('transitionend', () => toast.remove());
-        }, 3000);
-    };
-
-    // 2. მიმდინარე მონაცემების პირველადი ჩატვირთვა
-    let currentSession = JSON.parse(localStorage.getItem('crm_session'));
-    if (currentSession) {
-        profileNameInput.value = currentSession.fullName || '';
-        profileEmailInput.value = currentSession.email || '';
+    // ინფუთების საწყისი შევსება მიმდინარე სესიის მონაცემებით (მუშაობს!)
+    const initialSession = JSON.parse(localStorage.getItem('crm_session'));
+    if (initialSession) {
+        if (profileNameInput) profileNameInput.value = initialSession.fullName || '';
+        if (profileEmailInput) profileEmailInput.value = initialSession.email || '';
     }
 
     // 3. პროფილის პერსონალური ინფორმაციის განახლება
-    profileForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        currentSession = JSON.parse(localStorage.getItem('crm_session'));
-        if (!currentSession) return;
+    if (profileForm) {
+        profileForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            let latestSession = JSON.parse(localStorage.getItem('crm_session'));
+            if (!latestSession) return;
 
-        const updatedName = profileNameInput.value.trim();
-        const updatedEmail = profileEmailInput.value.trim();
-        const originalEmail = currentSession.email;
+            const updatedName = profileNameInput.value.trim();
+            const updatedEmail = profileEmailInput.value.trim();
 
-        currentSession = {
-            ...currentSession,
-            fullName: updatedName,
-            email: updatedEmail
-        };
-        localStorage.setItem('crm_session', JSON.stringify(currentSession));
-
-        const allUsers = JSON.parse(localStorage.getItem('crm_users')) || [];
-        const updatedUsers = allUsers.map(user => {
-            if (!user) return user;
-            if (user.email === originalEmail || String(user.id) === String(currentSession.userId)) {
-                return { ...user, fullName: updatedName, email: updatedEmail };
+            if (!updatedName || !updatedEmail) {
+                showProfileToast('გთხოვთ შეავსოთ ყველა ველი!', true);
+                return;
             }
-            return user; 
-        }).filter(Boolean);
-        localStorage.setItem('crm_users', JSON.stringify(updatedUsers));
 
-        showProfileToast('პროფილის მონაცემები წარმატებით განახლდა!');
-    });
+            latestSession = {
+                ...latestSession,
+                fullName: updatedName,
+                email: updatedEmail
+            };
+            localStorage.setItem('crm_session', JSON.stringify(latestSession));
 
-    // 4. პაროლის შეცვლის მყარი ლოგიკა
-    passwordForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        currentSession = JSON.parse(localStorage.getItem('crm_session'));
-        
-        document.getElementById('currentPasswordError').textContent = '';
-        document.getElementById('newPasswordError').textContent = '';
+            // უსაფრთხო ID-ის ამოღება (ამოწმებს ორივე ქის: userId და id)
+            const currentUserId = latestSession.userId || latestSession.id;
 
-        const currentPass = document.getElementById('current-password').value;
-        const newPass = document.getElementById('new-password').value;
+            const allUsers = JSON.parse(localStorage.getItem('crm_users')) || [];
+            const updatedUsers = allUsers.map(user => {
+                if (!user) return user;
+                if (String(user.id) === String(currentUserId) || String(user.userId) === String(currentUserId)) {
+                    return { ...user, fullName: updatedName, email: updatedEmail };
+                }
+                return user; 
+            }).filter(Boolean);
+            localStorage.setItem('crm_users', JSON.stringify(updatedUsers));
 
-        if (!currentSession || !currentSession.password) {
-            document.getElementById('currentPasswordError').textContent = 'სესიის მონაცემები ვერ მოიძებნა. გადაარეფრეშეთ გვერდი!';
-            return;
-        }
+            showProfileToast('პროფილის მონაცემები წარმატებით განახლდა!');
+        });
+    }
 
-        if (currentPass !== currentSession.password) {
-            document.getElementById('currentPasswordError').textContent = 'მიმდინარე პაროლი არასწორია!';
-            return;
-        }
+        // 4. პაროლის შეცვლის ლოგიკა (შესწორებული ვერსია ბაზიდან წაკითხვით)
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const currentSession = JSON.parse(localStorage.getItem('crm_session'));
+            const allUsers = JSON.parse(localStorage.getItem('crm_users')) || [];
+            
+            const currentPasswordError = document.getElementById('currentPasswordError');
+            const newPasswordError = document.getElementById('newPasswordError');
 
-        if (newPass.length < 6) {
-            document.getElementById('newPasswordError').textContent = 'ახალი პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს!';
-            return;
-        }
+            if (currentPasswordError) currentPasswordError.textContent = '';
+            if (newPasswordError) newPasswordError.textContent = '';
 
-        currentSession.password = newPass;
-        localStorage.setItem('crm_session', JSON.stringify(currentSession));
+            const currentPass = document.getElementById('current-password').value;
+            const newPass = document.getElementById('new-password').value;
 
-        const allUsers = JSON.parse(localStorage.getItem('crm_users')) || [];
-        const updatedUsers = allUsers.map(user => {
-            if (!user) return user;
-            if (user.email === currentSession.email || String(user.id) === String(currentSession.userId)) {
-                return { ...user, password: newPass };
+            if (!currentSession) {
+                if (currentPasswordError) currentPasswordError.textContent = 'სესიის მონაცემები ვერ მოიძებნა. გადაარეფრეშეთ გვერდი!';
+                return;
             }
-            return user; 
-        }).filter(Boolean);
-        localStorage.setItem('crm_users', JSON.stringify(updatedUsers));
 
-        passwordForm.reset(); 
-        showProfileToast('პაროლი წარმატებით შეიცვალა!');
-    });
+            // ვიღებთ უსაფრთხო ID-ს სესიიდან (თქვენს სესიაში 'userId' წერია)
+            const currentUserId = currentSession.userId || currentSession.id || currentSession.user_Id;
 
-    // 5. Danger Zone — ბაზის ქლიარი (ახალი კასტომური მოდალით)
+            // ვეძებთ მომხმარებელს დიდ ბაზაში (crm_users), სადაც პაროლი გარანტირებულად ინახება
+            const dbUser = allUsers.find(user => user && String(user.id) === String(currentUserId));
+
+            if (!dbUser || !dbUser.password) {
+                if (currentPasswordError) currentPasswordError.textContent = 'მომხმარებლის მონაცემები ბაზაში ვერ მოიძებნა!';
+                return;
+            }
+
+            // შედარებას ვაკეთებთ ბაზიდან წამოღებულ რეალურ პაროლთან
+            if (currentPass !== dbUser.password) {
+                if (currentPasswordError) currentPasswordError.textContent = 'მიმდინარე პაროლი არასწორია!';
+                return;
+            }
+
+            if (newPass.length < 6) {
+                if (newPasswordError) newPasswordError.textContent = 'ახალი პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს!';
+                return;
+            }
+
+            // 1. ვანახლებთ პაროლს დიდ ბაზაში (crm_users)
+            const updatedUsers = allUsers.map(user => {
+                if (!user) return user;
+                if (String(user.id) === String(currentUserId)) {
+                    return { ...user, password: newPass };
+                }
+                return user; 
+            }).filter(Boolean);
+            localStorage.setItem('crm_users', JSON.stringify(updatedUsers));
+
+            // 2. ვანახლებთ სესიასაც (თუ გსურთ, რომ მომავალში სესიასაც ჰქონდეს პაროლი)
+            currentSession.password = newPass;
+            localStorage.setItem('crm_session', JSON.stringify(currentSession));
+
+            passwordForm.reset(); 
+            // showProfileToast('პაროლი წარმატებით შეიცვალა!');
+            // Redirect auth page
+            localStorage.removeItem('crm_session');
+            window.location.href = "index.html";
+        });
+    }
+
+
+    // 5. Danger Zone — ბაზის ქლიარი
     const confirmModal = document.getElementById('confirm-modal');
     const btnConfirmCancel = document.getElementById('btn-confirm-cancel');
     const btnConfirmDelete = document.getElementById('btn-confirm-delete');
 
-    btnResetData.addEventListener('click', () => {
-        if (confirmModal) confirmModal.style.display = 'flex';
-    });
+    if (btnResetData && confirmModal) {
+        btnResetData.addEventListener('click', () => {
+            confirmModal.style.display = 'flex';
+        });
+    }
 
-    btnConfirmCancel.addEventListener('click', () => {
-        if (confirmModal) confirmModal.style.display = 'none';
-    });
+    if (btnConfirmCancel && confirmModal) {
+        btnConfirmCancel.addEventListener('click', () => {
+            confirmModal.style.display = 'none';
+        });
+    }
 
-    btnConfirmDelete.addEventListener('click', () => {
-        localStorage.removeItem('crm_clients'); 
-        if (confirmModal) confirmModal.style.display = 'none'; 
-        showProfileToast('ყველა კლიენტის მონაცემი წარმატებით წაიშალა!', true);
-    });
+    if (btnConfirmDelete && confirmModal) {
+        btnConfirmDelete.addEventListener('click', () => {
+            localStorage.removeItem('crm_clients'); 
+            confirmModal.style.display = 'none'; 
+            showProfileToast('ყველა კლიენტის მონაცემი წარმატებით წაიშალა!', true);
+        });
+    }
 
     window.addEventListener('click', (e) => {
-        if (e.target === confirmModal && confirmModal) {
+        if (confirmModal && e.target === confirmModal) {
             confirmModal.style.display = 'none';
         }
     });

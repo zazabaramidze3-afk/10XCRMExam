@@ -880,3 +880,18 @@ h1 {
 [data-theme="dark"] #reminder-seconds::placeholder {
   color: #94a3b8 !important;
 }
+
+.auth-container{
+    margin: 0 auto;
+}
+
+#btn-signup{
+  background-color: #1d4ed8;
+  color: var(--bg-primary);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+}
+#btn-signup:hover{
+  background-color: var(--text-main);
+}
