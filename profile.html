@@ -1,20 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - 10X CRM</title>
-    
+
     <!-- სტილების ფაილის დაკავშირება -->
     <link rel="stylesheet" href="css/style.css">
-    
+
     <!-- JavaScript ფაილების დაკავშირება defer ატრიბუტით -->
     <!-- მნიშვნელოვანია: ჯერ ვრთავთ საერთო ფუნქციებს, მერე კონკრეტული გვერდის ლოგიკას -->
     <script src="js/storage.js" defer></script>
     <script src="js/guard.js" defer></script>
     <script src="js/profile.js" defer></script>
 </head>
+
 <body>
-    <!-- აქ იქნება შენი code -->
+    <div class="app-container">
+        <!-- ნავიგაცია -->
+        <header class="main-header">
+            <div class="logo">10X CRM</div>
+            <nav class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="clients.html">Clients</a>
+                <a href="profile.html" class="active">Profile</a>
+                <button id="btn-logout" class="btn-logout">Log Out</button>
+            </nav>
+        </header>
+
+        <!-- პროფილის კონტენტი -->
+        <main class="main-content">
+            <div class="page-title-bar">
+                <h2>User Profile Settings</h2>
+            </div>
+
+            <div class="profile-grid">
+                <!-- ბლოკი 1: პროფილის რედაქტირება -->
+                <div class="profile-card">
+                    <h3>📝 პერსონალური ინფორმაცია</h3>
+                    <form id="edit-profile-form">
+                        <div class="form-group">
+                            <label for="profile-name">სრული სახელი</label>
+                            <input type="text" id="profile-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-email">ელ-ფოსტა</label>
+                            <input type="email" id="profile-email" required>
+                        </div>
+                        <button type="submit" class="btn-primary">პროფილის განახლება</button>
+                    </form>
+                </div>
+
+                <!-- ბლოკი 2: პაროლის შეცვლა -->
+                <div class="profile-card">
+                    <h3>🔒 უსაფრთხოება (პაროლის შეცვლა)</h3>
+                    <form id="change-password-form">
+                        <div class="form-group">
+                            <label for="current-password">მიმდინარე პაროლი</label>
+                            <input type="password" id="current-password" required>
+                            <span id="currentPasswordError" class="error-msg"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-password">ახალი პაროლი</label>
+                            <input type="password" id="new-password" required>
+                            <span id="newPasswordError" class="error-msg"></span>
+                        </div>
+                        <button type="submit" class="btn-primary">პაროლის განახლება</button>
+                    </form>
+                </div>
+
+                <!-- ბლოკი 3: მონაცემების წაშლა -->
+                <div class="profile-card danger-zone">
+                    <h3>⚠️ Danger Zone</h3>
+                    <p>სისტემის მონაცემების სრული განულება. წაიშლება ყველა კლიენტი და ჩანაწერი.</p>
+                    <button id="btn-reset-data" class="btn-danger">Reset All CRM Data</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- დადასტურების კასტომური მოდალი (Alert/Confirm-ის ნაცვლად) -->
+    <div id="confirm-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3 style="color: #991b1b; margin-top: 0;">⚠️ მონაცემების წაშლა</h3>
+            <p>ნამდვილად გსურთ ყველა კლიენტის და ანალიტიკის წაშლა? ამ მოქმედების გაუქმება შეუძლებელია!</p>
+            <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: center;">
+                <button id="btn-confirm-cancel" class="btn-item"
+                    style="background: #e2e8f0; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">გაუქმება</button>
+                <button id="btn-confirm-delete" class="btn-item"
+                    style="background: #dc2626; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">დიახ,
+                    წაშლა</button>
+            </div>
+        </div>
+    </div>
+
 </body>
+
 </html>
