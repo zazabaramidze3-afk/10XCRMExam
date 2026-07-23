@@ -172,23 +172,67 @@ function renderClients(clientsList) {
 // ==========================================================================
 // 4. კლიენტის წაშლა (ეტაპი 3.4)
 // ==========================================================================
-function deleteClient(clientId) {
-    const isConfirmed = confirm("Are you sure you want to delete this client?");
-    
-    if (!isConfirmed) return;
+// 1. გლობალური ცვლადი, რომელიც დაიმახსოვრებს წასაშლელი კლიენტის ID-ს
+let clientIdToDelete = null;
 
-    let currentClients = StorageManager.get("crm_clients") || [];
+// 2. ღილაკების მოძებნა ფუნქციის გარეთ
+const deleteModal = document.getElementById('delete-client-modal');
+const btnCancel = document.getElementById('btn-delete-cancel');
+const btnConfirm = document.getElementById('btn-delete-confirm');
 
-    // მასივის გაფილტვრა წასაშლელი ID-ის გარეშე
-    currentClients = currentClients.filter(client => client.id !== clientId);
-
-    StorageManager.set("crm_clients", currentClients);
-    renderClients(currentClients);
-
-    if (typeof showToast === 'function') {
-        showToast('Client deleted successfully', 'success');
-    }
+// 3. გაუქმების ღილაკის კლიკი
+if (btnCancel && deleteModal) {
+    btnCancel.addEventListener('click', () => {
+        deleteModal.style.display = 'none';
+        clientIdToDelete = null;
+    });
 }
+
+// 4. წაშლის დადასტურების ღილაკის კლიკი
+function deleteClient(clientId) {
+    const deleteModal = document.getElementById('delete-client-modal');
+    const btnCancel = document.getElementById('btn-delete-cancel');
+    const btnConfirm = document.getElementById('btn-delete-confirm');
+    const deleteToast = document.getElementById('universal-delete-toast');
+
+    if (!deleteModal) return;
+
+    // 1. ვაჩენთ მოდალს
+    deleteModal.style.display = 'flex';
+
+    // 2. გაუქმებაზე კლიკი
+    btnCancel.onclick = () => {
+        deleteModal.style.display = 'none';
+    };
+
+    // 3. წაშლის დადასტურებაზე კლიკი
+    btnConfirm.onclick = () => {
+        const allClients = JSON.parse(localStorage.getItem('crm_clients')) || [];
+        const updatedClients = allClients.filter(c => String(c.id) !== String(clientId));
+        
+        localStorage.setItem('crm_clients', JSON.stringify(updatedClients));
+        
+        // თქვენი რენდერის ფუნქციის გამოძახება ეკრანის განსაახლებლად
+        if (typeof filterAndRenderClients === 'function') {
+            filterAndRenderClients();
+        } else if (typeof renderClients === 'function') {
+            renderClients(updatedClients);
+        }
+
+        // ვმალავთ მოდალს
+        deleteModal.style.display = 'none';
+
+        // 💥 გარანტირებულად ვაჩენთ ახალ ტოსტს 3 წამით
+        if (deleteToast) {
+            deleteToast.style.display = 'flex';
+            setTimeout(() => {
+                deleteToast.style.display = 'none';
+            }, 3000);
+        }
+    };
+}
+
+
 // ==========================================================================
 // 5. მოდალის მართვა და დამხმარე ფუნქციები (ეტაპი 3.3)
 // ==========================================================================
@@ -477,30 +521,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // წაშლის ივენთების თავიდან მიბმა ახლად დახატულ ღილაკებზე
     attachDeleteEvents();
+    
   };
 
-  // 4. წაშლის ფუნქციონალი (სინქრონიზებული ფილტრებთან)
-  const attachDeleteEvents = () => {
+// 4. წაშლის ფუნქციონალი (სინქრონიზებული ფილტრებთან)
+const attachDeleteEvents = () => {
     const deleteButtons = document.querySelectorAll('.btn-delete');
     deleteButtons.forEach(button => {
-      button.onclick = (e) => {
-        const clientId = e.target.getAttribute('data-id');
-        
-        if (confirm('ნამდვილად გსურთ კლიენტის წაშლა?')) {
-          const allClients = JSON.parse(localStorage.getItem('crm_clients')) || [];
-          
-          // ვფილტრავთ მასივს წაშლილი იუზერის გარეშე
-          const updatedClients = allClients.filter(c => String(c.id) !== String(clientId));
-          
-          // ვინახავთ ბაზაში
-          localStorage.setItem('crm_clients', JSON.stringify(updatedClients));
-          
-          // ვიძახებთ ცენტრალურ ფილტრაციას (ინარჩუნებს მიმდინარე ფილტრებს ეკრანზე)
-          filterAndRenderClients();
-        }
-      };
+        button.onclick = (e) => {
+            // e.currentTarget უზრუნველყოფს ID-ის სწორად წაკითხვას, თუ ღილაკში იკონკა ზის
+            const clientId = e.currentTarget.getAttribute('data-id');
+            
+            // ბრაუზერის confirm-ის ნაცვლად ვიძახებთ ჩვენს მორგებულ მოდალს
+            deleteClient(clientId);
+        };
     });
-  };
+};
+
 
   // 5. ივენთების მსმენელები (Event Listeners) ყველა ფილტრისთვის
   searchInput.addEventListener('input', filterAndRenderClients);
