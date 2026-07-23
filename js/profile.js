@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }).filter(Boolean);
             localStorage.setItem('crm_users', JSON.stringify(updatedUsers));
 
-            showProfileToast('პროფილის მონაცემები წარმატებით განახლდა!');
+            showProfileToast('Profile data successfully updated!');
         });
     }
 
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newPass = document.getElementById('new-password').value;
 
             if (!currentSession) {
-                if (currentPasswordError) currentPasswordError.textContent = 'სესიის მონაცემები ვერ მოიძებნა. გადაარეფრეშეთ გვერდი!';
+                if (currentPasswordError) currentPasswordError.textContent = 'Session data not found. Please refresh the page!';
                 return;
             }
 
@@ -82,18 +82,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const dbUser = allUsers.find(user => user && String(user.id) === String(currentUserId));
 
             if (!dbUser || !dbUser.password) {
-                if (currentPasswordError) currentPasswordError.textContent = 'მომხმარებლის მონაცემები ბაზაში ვერ მოიძებნა!';
+                if (currentPasswordError) currentPasswordError.textContent = 'User data could not be found in the database!';
                 return;
             }
 
             // შედარებას ვაკეთებთ ბაზიდან წამოღებულ რეალურ პაროლთან
             if (currentPass !== dbUser.password) {
-                if (currentPasswordError) currentPasswordError.textContent = 'მიმდინარე პაროლი არასწორია!';
+                if (currentPasswordError) currentPasswordError.textContent = 'The current password is incorrect!';
                 return;
             }
 
             if (newPass.length < 6) {
-                if (newPasswordError) newPasswordError.textContent = 'ახალი პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს!';
+                if (newPasswordError) newPasswordError.textContent = 'The new password must contain at least 6 characters!';
                 return;
             }
 
@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnConfirmDelete.addEventListener('click', () => {
             localStorage.removeItem('crm_clients'); 
             confirmModal.style.display = 'none'; 
-            showProfileToast('ყველა კლიენტის მონაცემი წარმატებით წაიშალა!', true);
+            showProfileToast('All client data has been successfully deleted!', true);
         });
     }
 

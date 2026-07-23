@@ -41,42 +41,42 @@
             <div class="profile-grid">
                 <!-- ბლოკი 1: პროფილის რედაქტირება -->
                 <div class="profile-card">
-                    <h3>📝 პერსონალური ინფორმაცია</h3>
+                    <h3>📝 Personal Information </h3>
                     <form id="edit-profile-form">
                         <div class="form-group">
-                            <label for="profile-name">სრული სახელი</label>
+                            <label for="profile-name">Full name</label>
                             <input type="text" id="profile-name" required>
                         </div>
                         <div class="form-group">
-                            <label for="profile-email">ელ-ფოსტა</label>
+                            <label for="profile-email">E-mail</label>
                             <input type="email" id="profile-email" required>
                         </div>
-                        <button type="submit" class="btn-primary">პროფილის განახლება</button>
+                        <button type="submit" class="btn-primary">Update Profile</button>
                     </form>
                 </div>
 
                 <!-- ბლოკი 2: პაროლის შეცვლა -->
                 <div class="profile-card">
-                    <h3>🔒 უსაფრთხოება (პაროლის შეცვლა)</h3>
+                    <h3>🔒 Security (Change Password)</h3>
                     <form id="change-password-form">
                         <div class="form-group">
-                            <label for="current-password">მიმდინარე პაროლი</label>
+                            <label for="current-password">Current password</label>
                             <input type="password" id="current-password" required>
                             <span id="currentPasswordError" class="error-msg"></span>
                         </div>
                         <div class="form-group">
-                            <label for="new-password">ახალი პაროლი</label>
+                            <label for="new-password">New password</label>
                             <input type="password" id="new-password" required>
                             <span id="newPasswordError" class="error-msg"></span>
                         </div>
-                        <button type="submit" class="btn-primary">პაროლის განახლება</button>
+                        <button type="submit" class="btn-primary">Update Password</button>
                     </form>
                 </div>
 
                 <!-- ბლოკი 3: მონაცემების წაშლა -->
                 <div class="profile-card danger-zone">
                     <h3>⚠️ Danger Zone</h3>
-                    <p>სისტემის მონაცემების სრული განულება. წაიშლება ყველა კლიენტი და ჩანაწერი.</p>
+                    <p>Complete reset of system data. All clients and records will be deleted.</p>
                     <button id="btn-reset-data" class="btn-danger">Reset All CRM Data</button>
                 </div>
             </div>
@@ -86,14 +86,13 @@
     <!-- დადასტურების კასტომური მოდალი (Alert/Confirm-ის ნაცვლად) -->
     <div id="confirm-modal" class="modal">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
-            <h3 style="color: #991b1b; margin-top: 0;">⚠️ მონაცემების წაშლა</h3>
-            <p>ნამდვილად გსურთ ყველა კლიენტის და ანალიტიკის წაშლა? ამ მოქმედების გაუქმება შეუძლებელია!</p>
+            <h3 style="color: #991b1b; margin-top: 0;">⚠️ Data Deletion</h3>
+            <p>Are you sure you want to delete all clients and analytics? This action cannot be undone!</p>
             <div style="display: flex; gap: 12px; margin-top: 24px; justify-content: center;">
                 <button id="btn-confirm-cancel" class="btn-item"
-                    style="background: #e2e8f0; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">გაუქმება</button>
+                    style="background: #e2e8f0; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">Cancel</button>
                 <button id="btn-confirm-delete" class="btn-item"
-                    style="background: #dc2626; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">დიახ,
-                    წაშლა</button>
+                    style="background: #dc2626; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">Yes,Delete</button>
             </div>
         </div>
     </div>

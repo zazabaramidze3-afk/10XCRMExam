@@ -603,7 +603,7 @@ const attachDeleteEvents = () => {
     });
 
     localStorage.setItem('crm_clients', JSON.stringify(updatedClients));
-    showToast('ჩანაწერი წარმატებით შეინახა!', '📝');
+    showToast('The record was saved successfully!', '📝');
 
   });
 
@@ -633,7 +633,7 @@ const attachDeleteEvents = () => {
     const seconds = parseInt(reminderSecondsInput.value);
     
     if (isNaN(seconds) || seconds <= 0) {
-      reminderStatus.textContent = 'გთხოვთ შეიყვანოთ ვალიდური დრო წამებში!';
+      reminderStatus.textContent = 'Please enter a valid time in seconds!';
       reminderStatus.style.color = '#b91c1c';
       return;
     }
@@ -643,13 +643,13 @@ const attachDeleteEvents = () => {
 
     const clientName = document.getElementById('details-title').textContent;
     
-    reminderStatus.textContent = `⏱️ შეხსენება დაყენებულია ${seconds} წამში...`;
+    reminderStatus.textContent = `⏱️ Reminder set ✓ ${seconds} Second...`;
     reminderStatus.style.color = '#2563eb';
 
     // setTimeout-ის გაშვება
     reminderTimeoutId = setTimeout(() => {
-      showToast(`დროა დაუკავშირდეთ კლიენტს - ${clientName}!`, '⏰');
-      reminderStatus.textContent = '✅ შეხსენება შესრულდა!';
+      showToast(`Follow up: - ${clientName}!`, '⏰');
+      reminderStatus.textContent = '✅ Reminder Done!';
       reminderStatus.style.color = '#16a34a';
     }, seconds * 1000);
 
