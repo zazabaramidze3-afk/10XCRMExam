@@ -299,7 +299,24 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    
+    /* 💥 უმნიშვნელოვანესი ხაზი: ანიმაციის დრო და ტიპი (0.3 წამი, გლუვი დაწყება-დასრულება) */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    will-change: transform; /* ოპტიმიზაცია ბრაუზერისთვის, რომ ანიმაცია არ აციმციმდეს */
 }
+
+/* მაუსის მიტანის ეფექტი */
+.client-card:hover {
+    cursor: pointer;
+    transform: translateY(-4px) scale(1.01); /* ოდნავ ზემოთ იწევა (-4px) და იზრდება */
+    
+    /* ჩრდილის გაძლიერება ეფექტისთვის */
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    
+    /* სურვილისამებრ: ჩარჩოს ფერის ოდნავ გამუქება */
+    border-color: #cbd5e1; 
+}
+
 
 .card-header {
     display: flex;
@@ -894,4 +911,108 @@ h1 {
 }
 #btn-signup:hover{
   background-color: var(--text-main);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (MEDIA QUERIES)
+   ========================================================================== */
+/* ==========================================================================
+   ULTIMATE MOBILE OMNI-FIX (FOR 768PX, 635PX AND LOWER)
+   ========================================================================== */
+
+@media screen and (max-width: 768px) {
+    /* 1. გლობალური კონტეინერების იძულებითი გასწორება */
+    body {
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow-x: hidden !important;
+    }
+
+    /* მთავარი კონტეინერი, რომელიც სკრინზე თეთრ ბარათებს გარს აკრავს */
+    main, .main-content, .container, .profile-container, .wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        padding: 12px !important; /* ჰაეროვანი დაშორება ეკრანის კიდეებიდან */
+        margin: 0 auto !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 2. ჰედერის (Header) სრულიად ახალი, სუფთა განლაგება */
+    header, .header-container {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 16px 12px !important;
+        gap: 12px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0 0 20px 0 !important;
+    }
+
+    /* ნავიგაციის ზოლი */
+    header nav, nav {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 12px !important;
+        margin: 0 !important;
+    }
+
+    /* მენიუს ლინკები (Dashboard, Clients, Profile) */
+    nav ul, .nav-links, .menu {
+        display: flex !important;
+        flex-direction: row !important; /* რჩება გვერდიგვერდ */
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+    /* ლინკების დიზაინი პატარა ეკრანზე */
+    nav ul li a, .nav-links a {
+        padding: 6px 10px !important;
+        font-size: 13px !important;
+        white-space: nowrap !important;
+    }
+
+    /* წითელი Log Out ღილაკი */
+    .btn-logout, .logout-btn, header button, .btn-danger {
+        width: auto !important;
+        min-width: 120px !important;
+        padding: 8px 16px !important;
+        margin: 4px 0 0 0 !important;
+        display: inline-block !important;
+    }
+
+    /* 3. თეთრი ბარათების (Cards) პროპორციები */
+    .card, .profile-card, .form-container, .client-card, .info-section {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        padding: 20px 16px !important; /* აბრუნებს ბუნებრივ პროპორციებს */
+        box-sizing: border-box !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: 16px !important;
+    }
+
+    /* 4. ინპუტები და ლურჯი ღილაკები */
+    form, .form-group {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    input, select, textarea, .btn-submit, form button {
+        width: 100% !important; /* იკავებს ბარათის სრულ შიდა სიგანეს */
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: 14px !important;
+    }
 }
