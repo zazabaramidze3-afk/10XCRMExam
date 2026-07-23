@@ -1,7 +1,8 @@
 # 10X CRM System
 
 ## Live Demo
-[Link to your Vercel/Netlify deploy will be here]
+[Link Vercel]
+[VERCEL LINK](https://10x-crm-zaza.vercel.app/)
 
 A professional, responsive Customer Relationship Management (CRM) application built using clean, vanilla JavaScript, HTML5 semantic layout structures, and persistent custom styling.
 
